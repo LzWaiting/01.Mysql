@@ -1,0 +1,50 @@
+存储引擎(处理表的处理器)
+	
+	基本操作
+		1. 查看所有存储引擎
+			>>> show engines;
+			注：默认 innoDB
+		
+		2. 查看已有表的存储引擎
+			>>> show create table 表名;
+
+		3. 创建表指定存储引擎
+			>>> create table 表名(...)engine=myisam,character set utf8;
+		
+		4. 已有表修改存储引擎
+			>>> alter table 表名 engine=innodb;
+
+MySQL 锁（自动加锁）
+	作用：
+		解决客户端并发访问的冲突问题
+	分类：
+		1. 锁类型
+			读锁（共享锁）
+				select:加读锁后，别人不能更改表记录，但可以进行查询
+
+			写锁（互斥锁、排他锁）
+				insert、delete、update：加写锁后，别人不能查，不能改
+
+		2. 锁粒度
+			表级锁:myisam
+			行级锁:innodb
+
+		3. 常用存储引擎特点
+			
+			InnoDB 特点
+				1. 共享表空间
+					表名.frm:表结构和索引文件
+					表名.ibd:表记录
+				2. 支持行级锁
+				3. 支持外键、事务
+			
+			MyISAM 特点
+				1. 独享表空间
+					表名.frm：表结构
+					表名.MYD：表记录
+					表名.MYI：索引文件
+				2. 支持表级锁		
+		
+		4. 如何决定使用哪个存储引擎
+			1. 执行查询操作多的表用 MyISAM(使用InnoDB浪费资源)
+			2. 执行写操作多的表用 InnoDB

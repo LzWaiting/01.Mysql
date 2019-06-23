@@ -1,0 +1,64 @@
+MySQL 特点
+	
+	关系型数据库
+		特点:
+			1. 数据是以行和列(表格)的形式存储的
+			2. 表中的每一行叫一条记录,每一列叫一个字段
+			3. 表和表之间的逻辑关联叫关系
+		示例:
+			关系型数据库存储(功能强大)
+				表1、学生信息表
+					姓名    年龄   班级
+					张三丰  	25   AID1712
+					金花  	26   AID1711
+				表2、班级信息表
+					班级    		班主任
+					AID1712 	侯大大
+					AID1711 	孙大大
+			非关系型数据库存储(效率高)
+				{姓名:"张三丰",年龄:25,班级:"1712",班主任:"侯"}
+				{姓名:"金花",年龄:26,班级:"1711",班主任:"孙"}
+	
+	跨平台:
+		可以在Unix,Linux,Windows上运行数据库服务
+	
+	支持多种编程语言
+		python,java,php...
+
+MySQL 安装
+	
+	Ubuntu 安装 MyQSL 服务
+		安装服务端:
+			>>> sudo apt-get install mysql-server
+		安装客户端:
+			>>> sudo apt-get install mysql-client
+		Ubuntu 安装软件
+			1. >>> sudo apt-get updata
+				访问源列表(sources.list)中的每一个网址,读取软件列表,保存到本地/var/lib/apt/lists/
+			2. >>> sudo apt-get upgrade
+				把本地已安装软件与刚下载的软件列表进行对比,如果发现已安装软件版本低,则更新
+			3. >>> sudo apt-get -f install
+				修复依赖关系
+
+	Windows 安装 MyQSL 服务
+		下载MySQL安装包(windows)
+			>>> mysql-installer ***5.7***.msi
+
+	Mac 安装 MySQL 服务
+		>>> cd 用户主目录(要安装的目录下)
+		>>> vi .bash_profile
+		添加:PATH = '$PATH':/usr/local/mysql/bin
+		>>> source .bash_profile
+
+启动和连接 MyQSL 服务
+
+	服务端启动
+		>>> sudo /etc/init.d/mysql status		# 查看状态
+		>>> sudo /etc/init.d/mysql start        # 启动
+		>>> sudo /etc/init.d/mysql stop         # 停止
+		>>> sudo /etc/init.d/mysql restart      # 重启			
+	客户端连接
+		>>> mysql -h主机地址 -u用户名 -p密码(123456)	# 登录
+		>>> exit/quit/\q	# 退出
+		示例:
+			>>> mysql -hlocalhost -uroot -p123456	# 本地登录可以省略 -h

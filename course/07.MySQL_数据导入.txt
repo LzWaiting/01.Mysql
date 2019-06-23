@@ -1,0 +1,82 @@
+MySQL 数据导入
+	作用：
+		把文件系统的内容导入到数据库中
+	语法：
+		>>> load data infile '/var/lib/mysql-files/文件名'
+			into table 表名
+			fields terminated by ’分隔符‘
+			lines terminated by ’\n‘； 
+		示例：
+			# 将scoretable.csv 导入到数据库的表中
+			1. 在数据库中创建相应的表
+				>>> create database db1 character set utf8;
+				>>> use db1;
+				>>> create table scoretab(
+					id int,
+					name varchar(15),
+					score float(5,2),
+					phnumber bigint,
+					class char(7)
+					);
+			2. 把文件拷贝到数据库的默认搜索路径中
+				默认路径：/var/lib/mysql-files/
+				查看默认搜索路径
+				>>> show variables like 'secure_file_priv';
+				拷贝文件
+				>>> sudo cp ~/python/Mysql/code/scoretable.csv /var/lib/mysql-files/;	# 复制文件
+				>>> sudo -i 	# 查看文件的权限
+				>>> cd /var/lib/mysql-files/
+				>>> ls -l scoretable.csv
+				>>> chmod 666 scoretable.csv
+				
+				注：
+					如何将 Excel 表格 --> csv 文件
+						1. 打开 Excel 文件 -> 另存为 -> csv(逗号分隔)
+						2. 更改文件编码格式：用记事本/编辑器 打开，文件 -> 另存为 -> 选择编码(utf8)
+
+			3. 执行数据导入语句
+				>>> load data infile '/var/lib/mysql-files/scoretable.csv'
+					into table scoretab
+					fields terminated by ','
+					lines terminated by '\n';
+				>>> select * from scoretab;
+
+		练习：
+			# 把/etc/passwd 导入到数据库表userinfo里面
+			tarena 	:  x  	:  1000 	:  1000 	:  tarena,,, 	:  /home/tarena 	:  /bin/bash
+			用户名  	：密码 	： UID号 	： GID号 	： 用户描述   	：家目录/主目录   		：登录权限
+				1. 创建表
+				>>> create table userinfo( 
+	    			username varchar(20),
+	    			password varchar(1),
+	    			UID int,
+	    			GID int,
+	    			userinfo varchar(50),
+	    			homepass varchar(50),
+	    			power varchar(20)
+	    			);
+	    		2. 拷贝文件到相应默认路径下
+	    		>>> sudo cp /etc/passwd /var/lib/mysql-files/
+	    		3. 导入文件至数据库表中
+				>>> laod data infile '/var/lib/mysql-files/passwd'
+					into table userinfo
+					fields terminated by ':'
+					lines terminated by '\n';
+
+			# 在userinfo表中第一列添加一个id 字段、主键、自增长、宽度3，位数不够用0填充
+				>>> alter table userinfo add id int(3) zerofill primary key auto_increment first;
+			
+数据导出
+	
+	作用：
+		将数据库中表的记录导出到系统文件里
+	语法：
+		>>> select ... from 表名
+			into outfile '/var/lib/mysql-files/文件名'
+			fields terminated by '分隔符'
+			lines terminated by '\n';
+		示例：
+			>>> select name,gongji,country from sanguo
+				into outfile '/var/lib/mysql-files/sanguo.txt'
+				fields terminated by ','
+				lines terminared by '\n';

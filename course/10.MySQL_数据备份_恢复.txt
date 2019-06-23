@@ -1,0 +1,79 @@
+数据备份
+	
+	定义：
+		mysqldump,在Linux终端下备份
+	
+	分类：
+		完全备份
+		增量备份
+		注：ctrl + shift + t		# 在终端再启一个终端
+	
+	命令格式：
+		$ mysqldump -u用户名 -p 源库名 > ~/***.sql
+	
+	源库名的表现方式
+		
+		--all-databases 	# 备份所有的库
+		库名					# 备份单个库
+		-B 库1 库2 库3...	# 备份多个库
+		库名 表1 表2...		# 备份指定库的多张表 
+		
+		示例：
+			
+			1. 备份单个库country，放在 /home/tarena/python/mydata目录下country.sql
+				~$ mkdir /home/tarena/python/mydata
+				~$ cd /home/tarena/python/mydata
+				~$ mysqldump -uroot -p country > country.sql
+			
+			2. 备份所有库，放在 /home/tarena/python/mydata目录下all.sql
+				$ mysqldump -uroot -p --all-databases > all.sql
+
+			3. 备份country库中的sheng city xian 三张表到 scx.sql
+				$ mysqldump -uroot -p country sheng city xian > scx.sql
+
+			4. 备份MOSHOU 和 country 库到Mc.sql
+				$ mysqldump -uroot -p -B MOSHOU country > Mc.sql
+
+数据恢复
+	
+	命令格式：
+		$ mysql -uroot -p 目标库名 < ***.sql
+
+		示例：
+			$ create database 目标库名 character set utf8;		# 先创建目标库
+			$ mysql -uroot -p 目标库名 < ***.sql
+	从所有库备份中恢复某一个库(--one-database)
+		语法：
+			$ mysql -uroot -p --one-database 目标库名 < ***.sql
+		示例：
+			$ mysql -uroot -p --one-database country < /home/tarena/python/mydata/all.sql
+	注意：
+		1. 恢复库时如果恢复到原库会将表中数据覆盖，新增表不会删除
+		2. 数据恢复时如果恢复的库不存在，则必须先创建空库
+
+MySQL 用户账户管理
+	1. 开启MySQL 远程连接
+		命令：	
+			$ sudo -i
+			$ cd /etc/mysql/mysql.conf.d/
+			$ subl mysqld.cnf
+			# 将bind-address = 127.0.0.1 注释掉,保存
+			$ /etc/init.d/mysql restart		# 重启mysql
+	2. 添加授权用户
+		命令：
+			$ mysql -uroot -p
+			>>> grant 权限列表 on 库.表 to '用户名”@“%'
+				identified by '密码' with grant option;
+		权限列表：
+			all privileges(所有权限)、select(访问权限)、insert(插入权限)
+		库.表：
+			*.* 所有库的所有表
+		示例：
+			# 给 tiger 授权所有权限所有库.表
+			>>> grant all privileges on *.* to "tiger"@"%"
+				identified by '123' with grant option;
+			# 给 rabbit 授对 country库 所有权限,对其余库无权限
+			>>> grant all privileges on country.* to 'rabbit'@'%'
+				identified by '123' with grant option;
+			特例：mysql库下的user表
+			>>> select user,host from user;		# 查看用户授权信息

@@ -1,0 +1,15 @@
+MySQL 约束
+	
+	作用：
+		保证数据的完整性、一致性、有效性
+	分类：
+		默认约束(default)
+			插入记录时，不给该字段赋值，则使用默认值
+		非空约束(not NULL)
+			不允许该字段的值有NULL记录
+		示例：
+			>>> create table t2(
+				id int not null,
+				name varchar(15),
+				sex enum('M','W','O') default 'O'
+				);

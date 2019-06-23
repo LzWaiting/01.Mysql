@@ -1,0 +1,17 @@
+表的复制
+	语法：
+		>>> create table 表名 select ... from 表名 where 条件;
+	示例：
+		>>> create table sanguo0 select * from MOSHOU.sanguo;	# 复制整张表
+		>>> create table sanguo1
+    		select * from MOSHOU.sanguo
+    		limit 3;						# 复制前3条记录
+    	>>> create table sanguo2
+    		select id,name,country from MOSHOU.sanguo
+    		limit 5;						# 复制id,name,country 前5条记录
+    复制表结构：
+    	>>> create table sanguo3
+    		select * from MOSHOU.sanguo
+    		where false;					# 只复制表结构
+    注意：
+    	复制表时，不会复制原有表的键（Key）属性

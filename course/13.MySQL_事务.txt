@@ -1,0 +1,44 @@
+事务和事务回滚
+	定义：
+		一件事从开始发生到结束的整个过程
+	作用：
+		确保数据的一致性
+	事务和事务回滚应用：
+		1. MySQL中sql命令会自动commit到数据库
+			>>> show variables like 'autocommit';	# 查看自动提交值，MySQL 默认on
+		2. 事务应用
+			开启事务：
+				>>> begin;
+				>>> ... 一条或多条SQL语句
+				注： 此时autocommit 被禁用，不提交数据库执行
+			终止事务：
+				>>> commit; | rollback;
+		3. 案例：
+			背景
+				你：建行卡
+				你朋友：工商卡
+				你在建行自动取款机给你朋友的工商卡转账5000元
+				>>> create table CCB(
+					name varchar(15),
+					money decimal(20,2)
+					);		# 创建建行卡
+				>>> insert into CCB values(
+					'小赵',10000);
+				>>> create table ICBC(
+					name varchar(15),
+					money decimal(20,2)
+					);		# 创建工商卡
+				>>> insert into ICBC values(
+					'小王',1000);
+			命令：
+				失败：
+				>>> begin;		# 事务开启
+				>>> update CCB set money=money-5000 where name='小赵';
+				>>> update ICBC set ? 此时工商计算机发生‘宕机’
+				>>> rollback;		# 回滚
+				成功：
+				>>> begin;
+				>>> update CCB set money=money-5000 where name='小赵';
+				>>> update ICBC set money=money+5000 where name='小王';
+				>>> commit;			# 事务关闭，转账成功
+

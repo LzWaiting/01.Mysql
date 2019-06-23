@@ -1,0 +1,146 @@
+数据类型(MySQL 可以存储所有的数据类型)
+		
+	常用的四大类
+		
+		1. 数值类型
+			
+			整型
+				int  
+					大整型(4个字节)				
+					取值范围 2**32 - 1(42亿多)
+				tinyint
+					微小整型(1个字节)				
+					有符号 (signed默认),取值范围 -128 ~ 127 
+					无符号 unsigned,取值范围 0 ~ 255
+					示例:
+						age tinyint 			# -128 ~ 127
+						age tinyint	unsigned	# 0 ~ 255
+				samllint 
+					小整型(2个字节)
+				bigint
+					极大整型(8个字节),多用于手机号码
+
+			浮点型
+				float
+					(4个字节,最多显示7个有效位)
+					用法:
+						字段名 float(m,n)		# m --> 总位数(最大7位), n --> 小数位位数
+					示例:
+						float(5,2)			# 取值范围 -999.99 ~ 999.99
+					注意:
+						1. 浮点型插入整数时会自动补全小数位数
+						2. 小数位如果多于指定位数,会对下一位四舍五入
+				double
+					(8个字节,最多显示15个有效位)
+					用法:
+						字段名 double(m,n)
+				decimal
+					(最多显示28个有效位)
+					用法:
+						字段名 decimal(m,n)
+					注:
+						存储空间(整数,小数分开存储)
+						规则:
+							将9的倍数包装成4个字节+余数字节
+							余数 	字节
+							0		0
+							1-2		1
+							3-4		2
+							5-6		3
+							7-8		4 
+						示例:
+							decimal(19,9)
+								整数部分:(4+1)字节(整数位数10为余1)
+								小数部分:4字节
+							总共占9字节存储空间
+
+		2. 字符类型
+
+			char(定长)
+				取值范围:1 ~ 255
+			varchar(变长)
+				取值范围:1 ~ 65535
+			char 与 varchar 区别:
+				1. char 浪费存储空间,性能高
+				2. varchar 节省存储空间,性能低
+			text / longtext / blob / longblob(4G)
+
+		注：字符类型宽度和数值类型宽度的区别：
+			1. 数值类型宽度为显示宽度，只用于select查询显示，和占用存储无关，可用zerofill查看效果(空位补零)
+				示例：
+					int(3) zerofill 	# 输入 1 时，显示001
+			2. 字符类型宽度为实际宽度，超过后则无法存储
+
+		3. 枚举类型
+			单选(enum):字段名 enum(值1，值2，...)
+			多选(set):字段名 set(值1，值2，...)
+			示例：
+				>>> create table t1(
+					id int(3) zerofill,
+					name char(15),
+					sex enum('M','W','Secret'),
+					likes set('F','B','Study','Python')
+					);
+				>>> insert into t1 (sex) values ('W');					# 单选插入内容
+				>>> insert into t1 (likes) values ('F,Study,Python');	# 多选插入内容
+	
+		4. 日期时间类型
+			date:'YYYY-MM-DD'
+			time:'HH:MM:SS'
+			datetime:'YYYY-MM-DD HH:MM:SS'
+			timestamp:'YYYY-MM-DD HH:MM:SS'
+
+			注：如果不赋值
+				datetime 返回 null值
+				timestamp 返回 系统当前时间
+			
+			示例：
+				>>> create table t4(
+				    id int,
+				    name varchar(15),
+				    birthday date,
+				    money int,
+				    cztime datetime
+				    );
+			
+			日期时间函数
+				now()			# 返回服务器当前时间
+				curdate()		# 返回当前日期
+				curtime()		# 返回当前时间
+				year(date)		# 返回指定时间的年份
+				date(date)		# 返回指定时间的日期
+				time(date)		# 返回指定时间的时间
+			
+			示例：
+				>>> select year('2019-02-20 20:12:00');					# --> 2019
+				>>> select * from t4 where 
+					date(cztime)='2018-06-30';							# 查找满足条件的所有信息
+				>>> select * from t4 where 
+					data(cztime)>='2019-02-01'and 
+					date(cztime)<='2019-02-28';							# 查找一个月的所有信息
+				>>> select * from t4 where
+					date(cztime)='2019-02-20'and 
+					time(cztime)>='20:19:00'and 
+					time(cztime)<='20:40:00';							# 某个时间段的信息
+			
+			日期时间运算
+				语法：
+					>>> select * from 表名
+						where 字段名 运算符(时间-interval 时间间隔单位);
+					时间间隔单位：
+						1 day, 2 hour, 1 minute, 2 year, 3 month
+				示例：
+					# 查询1天以内的记录
+					>>> select * from t4
+						where cztime > (now() - interval 1 day);
+					
+					# 查询1年以前的记录
+					>>> select * from t4
+						where cztime < (now() - interval 1 year);
+					
+					# 查询1天以前，3天以内的记录
+					>>> select * from t4
+						where 
+						cztime > (now() - interval 3 day) and
+						cztime < (now() - interval 1 day);
+

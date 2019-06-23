@@ -1,0 +1,22 @@
+orm(Object Relation Mapping 对象关系映射)
+	定义:
+		把对象模型映射到MySQL数据库中
+	orm安装:
+		以sqlalchemy 为例:
+		在线:
+			$ sudo pip3 install sqlalchemy
+		离线:
+			$ tar -xzvf SQLALchemy-1.2.10.tar.gz
+			$ cd SQLALchemy-1.2.10
+			$ sudo python3 setup.py install
+		验证:
+			$ python3
+			>>> import sqlalchemy
+	示例:
+		class User(Base):
+			__tablename__ = 't1'	# 声明要创建的表名
+			id = Column(Integer,primary_key=True)
+			name = Column(String(20))
+		解释:
+			一个类User --> 一张表 t1
+			表中有两个字段 --> id 和 name

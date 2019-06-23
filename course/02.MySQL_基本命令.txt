@@ -1,0 +1,124 @@
+MySQL 基本命令
+
+	SQL 命令使用规则
+		1. 每条命令必须以';'结尾
+		2. SQL 命令不区分字母大小写
+		3. 使用 \c 来终止当前命令的执行
+		示例:
+			>>> show databases;
+
+	客户端把数据存储到数据库服务器上的过程
+		>>> mysql -uroot -p123456; 					# 连接到数据服务器
+		>>> use 库名; 								# 选择一个库
+		>>> update 表名...;							# 创建表/修改表
+		>>> exit|quit|\q;							# 断开与数据库连接
+	
+	如何更改默认字符集
+		方法:
+			通过更改MySQL配置文件实现
+		步骤:
+			>>> sudo -i 							# 获取root权限 
+			>>> cd /etc/mysql/mysql.conf.d/			# 找到配置文件所在的路径
+			>>> cp mysqld.cnf mysqld.cnf.bak		# 备份
+			>>> subl mysqld.cnf 					# 打开文件
+				在[mysqld]下面添加一句:
+				character_set_server = utf8
+			>>> /etc/init.d/mysql restart |reload	# 重启 mysql 服务
+	
+	库的管理
+		库的基本操作:
+			>>> show databases;								# 查看已有库
+			>>> create database 库名;						# 创建库
+			>>> show create database 库名;					# 查看创建库的语句(字符集)
+			>>> create database 库名 [character set utf8];	# 创建指定字符集的库
+			>>> select database();							# 查看当前所在库
+			>>> use 库名;									# 切换库(进入库)
+			>>> drop database 库名;							# 删除库
+		库的命名规则:
+			1. 数字,字母,下划线,但不能使用纯数字
+			2. 库名区分字母大小写
+			3. 不能使用特殊字符和 mysql关键字
+			4. 库名具有唯一性
+	
+	表的管理
+		表的基本操作
+			>>> show tables;								# 查看库中已有表
+			>>> create table 表名(字段名1 数据类型, ...);		# 创建表
+			>>> show create table 表名;						# 查看创建表的语句(字符集,存储引擎)
+			>>> create table 表名() [character set utf8]; 	# 创建指定字符集的表
+			>>> desc 表名;									# 查看表结构
+			>>> drop table 表名1,表2,...;						# 删除表 
+	注意:
+		1. 所有的数据都是以文件的形式存放在数据库目录下
+		2. 数据库目录:/var/lib/mysql 	(关系型存储在硬盘里)
+
+	表字段操作
+		语法:
+			>>> alter table 表名 执行动作;
+		添加字段(add)：
+			>>> alter table 表名 add 字段名 数据类型；					# 添加最后字段
+			>>> alter table 表名 add 字段名 数据类型 first；			# 添加到第一列
+			>>> alter table 表名 add 字段名 数据类型 after 字段名；		# 添加到已有字段后
+		删除字段(drop)：
+			>>> alter table 表名 drop 字段名；
+		修改数据类型(modify):
+			>>> alter table 表名 modify 字段名 新数据类型；	
+		表重命名(rename)：
+			>>> alter table 表名 rename 新表名；
+		表字段重命名(change):
+			>>> alter table 表名 change 旧字段名 新字段名 数据类型; 
+	
+	表记录管理
+		插入信息:
+			>>> insert into 表名 values(记录/每行信息),(), ...;						# 插入信息
+			>>> insert into 表名 [(字段1,字段2,...)] values(记录/每行信息),(), ...;		# 在指定字段下插入信息
+		查询信息:
+			>>> select * from 表名;													# 查询表信息
+			>>> select * from 表名 [where 条件语句];									# 在指定条件下查询信息
+				注: 此处 * 代表所有 字段,可以变为指定字段
+			>>> select 字段1,字段2 from 表名 [where 条件语句];							# 在指定字段下查询指定条件下信息
+				注：可以使用别名,示例 
+				select name as n from 表名 [where 条件语句];
+		删除表记录:
+			>>> delete from 表名 where 条件;											# 删除指定条件信息
+			注意：delete 语句后如果不加 where 条件，所有信息全部清空
+		更改表记录：
+			>>> update 表名 set 字段1 = 值1，字段2 = 值2，... where 条件;				# 更改指定条件的相关信息
+			注意：update 语句后如果不加 where 条件，所有信息全部更改
+
+	运算符操作
+		数值/字符比较
+			数值比较：= != > >= < <=
+			字符比较：= !=  
+		逻辑比较
+			and (所有条件均成立方可)
+			or (任一条件成立即可)
+		范围内比较
+			where 字段名 between 值1 and 值2 		# 之间
+			where 字段名 in (值1，值2，...)		# 在之内
+			where 字段名 not in (值1，值2，...)	# 不在之内
+			示例：
+				>>> select * from sanguo 
+					where (id in (1,3,5) and country = '蜀国') 
+					or name = '貂蝉';
+		匹配空、非空
+			空：where 字段名 is null
+			非空：where 字段名 is not null
+			注：
+				null(空值)，只能用is 或 is not 去匹配
+				‘’(空字符串)，用 = 或 != 去匹配
+		模糊比较
+			where 字段名 like 表达式
+				表达式：
+					_ :匹配单个字符
+					% :匹配0到多个字符
+				示例：
+					>>> select * from sanguo
+						where name like '_%_';		# name 中至少有两个字符的信息
+					>>> select * from sanguo
+						where name like '%';		# 非 null 的所有信息
+					>>> select * from sanguo
+						where name like '___';		# name 为三个字符的所有信息
+					>>> select * from sanguo
+						where name like '赵%';		# 查询姓赵的信息
+					>>> show tables like '%san%';	# 用名字的模糊查询表		

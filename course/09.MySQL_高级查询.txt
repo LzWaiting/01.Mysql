@@ -1,0 +1,91 @@
+嵌套查询(子查询)
+	作用：
+		把内层的查询结果作为外层的查询条件
+	语法：
+		>>> select ... from 表名 where 条件(select ...);
+	示例：
+		>>> select name,gongji from MOSHOU.sanguo 
+			where gongji<(select avg(gongji) from MOSHOU.sanguo);		# 把攻击小于平均值的英雄名字和攻击显示出来
+		
+		# 使用两个条件(country,max(gongji))查询
+		>>> select name,gongji from MOSHOU.sanguo 
+			where 
+			(country,gongji) in (select country,max(gongji) from MOSHOU.sanguo 
+			group by country);											# 找出每个国家攻击力最高的英雄的名字和攻击值
+
+多表查询
+	语法：
+		1. 笛卡尔积
+			>>> select 字段名列表 from 表名列表;
+			示例：
+				>>> create table t1(name1,varchar(10)); 
+				>>> create table t2(name2,varchar(10));
+				>>> insert into t1 values('A1'),('A2'),('A3');
+				>>> insert into t2 values('B1'),(B2);
+				>>> select * from t1,t2;						# 显示为表3
+				>>> select t1.name1,t2.name2 from t1,t2;		# 同上
+
+				表1. t1					表2. t2					表3. t1,t2
+				+-------+				+-------+				+-------+-------+
+				| name1 |				| name2 |				| name1 | name2 |
+				+-------+				+-------+				+-------+-------+
+				| A1    |				| B1    |				| A1    | B1    |
+				| A2    |				| B2    |				| A1    | B2    |
+				| A3    |				+-------+				| A2    | B1    |
+				+-------+										| A2    | B2    |
+																| A3    | B1    |
+																| A3    | B2    |
+																+-------+-------+
+
+		2. 多表查询
+			>>> select 字段名列表 from 表名列表
+				where 条件;
+			示例：
+				>>> select sheng.s_name,city.c_name from sheng,city
+					where sheng.s_id=city.cfather_id;									# 显示省和市的详细信息
+				>>> select sheng.s_name,city.c_name,xian.x_name from sheng,city,xian
+    				where sheng.s_id=city.cfather_id and city.c_id=xian.xfather_id;		# 显示省、市、县相关信息
+
+    	3. 连接查询
+    		内连接
+    			语法：
+					>>> select 字段名 from 
+						表1 inner join 表2 on 条件
+						inner join 表3 on 条件
+						...;
+				示例：
+					# 显示省和市的详细信息
+					>>> select sheng.s_name,city.c_name from 
+    					sheng inner join city 
+    					on sheng.s_id=city.cfather_id; 
+    				# 显示省、市、县相关信息
+    				>>> select sheng.s_name,city.c_name,xian.x_name from
+    					sheng inner join city 
+    					on sheng.s_id=city.cfather_id
+    					inner join xian 
+    					on city.c_id=xian.xfather_id;
+    		外连接
+    			左连接
+    				作用：
+    					以 左表 为主，显示查询结果
+    				语法：
+    					>>> select 字段名 from 
+    						表1 left join 表2 on 条件
+    						left join 表3 on 条件
+    						...;
+    				示例：
+    					>>> select sheng.s_name,city.c_name from 
+    						sheng left join city 
+    						on sheng.s_id=city.cfather_id;
+    			右连接 
+    				作用：
+    					以 右表 为主，显示查询结果
+    				语法：
+    					>>> select 字段名 from 
+    						表1 right join 表2 on 条件
+    						right join 表3 on 条件
+    						...;
+    				示例：
+    					>>> select sheng.s_name,city.c_name from
+    						sheng right join city
+    						on sheng.s_id=city.cfather_id;

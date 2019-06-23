@@ -1,0 +1,76 @@
+1. MySQL 特点:
+	关系型数据库
+	跨平台
+	支持多种编程语言
+
+2. MySQL 启动:
+	>>> sudo /ect/init.d/mysql status| start| stop| restart
+
+3. MySQL 数据:
+	以文件的形式存放在数据库目录/var/lib/mysql
+
+4. MySQL数据类型:
+	数值类型(int/tinyint/smallint/bigint/float/double/decimal/)
+	字符类型(char/varchar/text/longtext/blob/longblob)
+	枚举类型(enum/set)
+	日期时间类型(date/time/datetime/timestamp)
+
+5. 关系型数据库中的核心内容是 __关系__ 即 __二维表__ 
+
+6. 简述客户端把数据存储到数据库服务器上的过程
+	>>> mysql -hlocalhost(数据库IP地址) -uroot -p密码;		# 打开 MySQL 数据库
+	>>> use 库名;										# 进入库
+	>>> update 表名...;									# 创建表/更新表
+	>>> exit/quit/\q;									# 断开数据库连接
+
+7. char 和 varchar的区别,各自特点
+	char(定长) 和 varchar(变长),
+	实际存储过程中:
+		char 不管输入多少个字符,均按定长字符存储,
+		varchar存储根据不同长度字符,存储不同长度
+		char 浪费存储空间,性能高
+		varchar 节约存储空间,性能低 
+
+8. MySQL 查询语法：
+	>>> select ... 聚合函数 from 表名
+		where ...		# 1.条件
+		group by ...	# 2.分组
+		having ...		# 3.再筛选(where无法筛选的条件)
+		order by ...	# 4.排序
+		limit ...;		# 5.查看数量
+
+9. MySQL 索引：
+	优点：
+		加快数据检索速度
+	缺点：
+		1. 需要占用物理存储空间
+		2. 当对表中数据更新时，索引需要动态维护，降低数据维护速度
+
+10. MySQL 索引分类
+	普通索引(index) --> Key = MUL
+	唯一索引(unique) --> Key = UNI
+	主键索引(primary key auto_increment) --> Key = PRI	
+	外键索引(>= 2张表)
+
+11. 面试题
+	有一张文章评论表comment如下：
+	
+	comment_id		article_id		user_id		date
+	1				10000			10000		2018-01-30 09:00:00
+	2				10001			10001		... ...
+	3				10002			10000		... ...
+	4				10003			10015		... ...
+	5				10004			10006		... ...
+	6				10025			10006		... ...
+	7				10009			10000		... ...
+	
+	以上是一个应用的comment表格的一部分，
+	请使用SQL语句找出在本站发表的所有评论数量最多的10位用户及评论数，并按评论数从高到低排序
+	备注：comment_id		为评论id
+	     article_id		为被评论文章的id
+	     user_id 		指用户id
+
+	>>> select user_id,count(user_id) from comment
+		group by user_id
+		order by count(user_id) desc 
+		limit 10;

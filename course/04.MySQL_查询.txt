@@ -1,0 +1,109 @@
+MySQL 查询
+	语法：	
+		>>> select ... 聚合函数 from 表名
+			where ...		# 1.条件
+			group by ...	# 2.分组
+			having ...		# 3.再筛选(where无法筛选的条件)
+			order by ...	# 4.排序
+			limit ...;		# 5.查看数量
+	
+	聚合函数：
+		分类：
+			avg(字段名)： 	求平均值
+			sum(字段名)： 	求和
+			max(字段名)： 	求最大
+			min(字段名)： 	求最小
+			count(字段名)：	统计数量
+		示例：
+			>>> select max(gongji) as best from MOSHOU.sanguo;	# 查找攻击最强
+			>>> select count(id),count(name) from sanguo;		# 分别统计个数（null不会统计）
+
+	2. group by ...
+		作用：
+			对查询结果进行分组
+		语法：
+			>>> select 字段名(同后),聚合函数,...from 表名 
+				group by 字段名; 
+		说明：
+			先分组 --> 再聚合 --> 再去重
+		示例：
+			>>> select country from sanguo 
+				group by country;			# 按国家分组
+			>>> select country,avg(gongji) from sanguo 
+				group by country;			# 每个国家平均攻击
+			>>> select country,count(id) from sanguo
+				group by country
+				order by count(id) desc
+				limit 2;					# 所有国家英雄最多，前2名的国家和英雄数量
+		注意：
+			1. group by 之后的字段名必须要为select之后的字段名
+			2. 如果select之后的字段名和group by 之后的字段名不一致，则必须对该字段进行聚合处理(聚合函数) 
+
+	3. having ...
+		作用：
+			对查询的结果进一步筛选
+		语法：
+			>>> select 字段名，聚合函数，... from 表名
+				having 聚合函数条件句；
+		示例：
+			>>> select country,avg(gongji) as avg_gj from sanguo
+				group by country
+				having avg_gj > 105
+				order by avg_gj desc
+				limit 2;	# 查找平均攻击前2名的国家和平均攻击
+		注意：
+			1. having 语句通常和group by 语句联合使用，过滤由group by 语句返回的记录集
+			2. where 语句只能操作表中实际存在字段，having 可操作由聚合函数生成的显示列
+
+	4. order by ...
+		作用：
+			给查询结果进行排序
+		语法：
+			...order by 字段名 升序 (ASC默认) / 降序(DESC)
+		示例：
+			>>> select * from sanguo order by fangyu desc;		# 按防御降序查找
+			>>> select * from sanguo 
+				where country = '蜀国'
+				order by gongji desc;							# 对蜀国英雄按攻击降序查找
+			>>> select * from sanguo
+				where country in ('魏国','蜀国') and
+				name like '___'
+				order by fangyu;								# 将魏蜀两国名字三个字的英雄按防御升序查找
+
+	5. limit ...(永远放在SQL查询语句的最后)
+		作用：
+			限制显示查询记录的个数
+		语法：
+			... limit n 		---> 显示前 n 条记录
+			... limit m,n 		---> 显示从第 m+1 条开始，共显示 n 条记录（计算机计数从零开始，故需要+1操作）
+		示例：
+			>>> select * from sanguo
+				where country = '蜀国'
+				order by fangyu
+				limit 1,3;				# 蜀国防御倒数2~4的信息
+			>>> select name,gongji,country from sanguo
+				where country = '蜀国' and name is not null
+				order by gongji desc
+				limit 3;				# 不是null的蜀国英雄攻击前3名的姓名、攻击、国际信息
+		分页：
+			每页显示5条记录，显示第4页内容
+			示例：
+				第1页：limit 0,5
+				第2页：limit 5,5
+				第3页：limit 10,5
+				第n页：limit (m-1)*n,n 	# 每页显示n条记录，显示第m页
+
+	☆. distinct
+		作用：
+			不显示字段重复值
+		示例：
+			>>> select distinct country from sanguo;	# 查找表中有那些国家
+		注意：
+			1. distinct 和 from 之间所有字段都相同才会去重
+			2. distinct 不能对任何字段做聚合处理
+
+	查询表记录时可以做数学运算
+		运算符
+			+ - * / %
+		示例：
+			>>> select name,gongji*10 from sanguo;		# 查询结果gongji 进行了运算

@@ -1,0 +1,35 @@
+MySQL 调优
+	1. 选择合适的存储引擎
+		读操作多：MyISAM
+		写操作多：InnoDB
+	2. 创建索引
+		在 select、where、order by常涉及到的字段建立索引
+	3. SQL 语句的优化
+		1. where 子句中不使用 != ，此时索引失效，仍会全表扫描
+		2. 尽量避免 NULL 值判断，否则放弃索引全表扫描
+			示例：
+				优化前：
+				>>> select number from t1 
+					where number is null;
+				优化后：
+				在number列上设置默认值0，确保number列无NULL值
+				>>> select number from t1
+					where number=0; 
+		3. 尽量避免 or 连接条件，否则放弃索引全表扫描
+			示例：
+				优化前：
+					>>> select id from t1 where id=10 or id=20;
+				优化后：
+					>>> select id from t1 where id=10
+						union all						# 把多条连接在一起
+						select id from t1 where id=20
+						union all
+						...;
+		4. 模糊查询尽量避免使用前置 % ，否则索引失效，全表扫描
+			示例：
+				>>> select name from t1 where name like '%c%';
+		5. 尽量避免使用 in 和 not in,否则索引失效，全表扫描
+			示例：
+				>>> select id from t1 where id in(1,2,3,4);
+					selecr id from t1 where id between 1 and 4;
+		6. 尽量避免使用 select * ...;用具体字段代替*,不要返回用不到的任何字段
